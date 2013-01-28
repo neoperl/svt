@@ -1,0 +1,30 @@
+#!perl
+use strict;
+
+my $dns=$ARGV[0];
+my $option=$ARGV[1];
+my $ping=`ping -n 1 $dns`;
+
+if ("$option" eq "mac") {
+    while (1) {
+        system("ping -c 1 $dns");
+         system("killall -HUP mDNSResponder");
+        sleep(6);
+    }
+}
+
+if ("$option" eq "win") {
+        while (1) {
+                system("ping -n 1 $dns");
+        system("ipconfig/flushdns");
+        sleep 6;
+    }
+}     
+
+if ("$option" eq "linux" ) {
+        while (1) {
+                system("ping -c 1 $dns");
+                system("/etc/init.d/dns-clean");
+                sleep(6);
+    }
+} 
