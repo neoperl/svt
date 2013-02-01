@@ -1,0 +1,57 @@
+#!/usr/bin/perl
+use strict;
+use Mail::Sender;
+use Digest::SHA;
+my @files=('/etc/passwd', '/etc/shadow', '/var/log/wtmp');
+my $last_cmd=`last -2`;
+
+while (1) {
+        my %md5_res;
+        my %output;
+        my @change;
+        foreach my $file (@files) {
+                $md5_res{$file}=MD5_digest($file);
+        };
+                while(1) {
+                        sleep 10;
+                        foreach my $file (@files) {
+                                if ($md5_res{$file} ne MD5_digest($file)) {
+                                        $output{$file}="$file is changed";
+
+                                };
+                        };
+                        if (%output) {
+                                foreach my $key (%output) {
+                                       print "$output{$key}\n";
+
+                                }
+                                print "$last_cmd";
+                                last;
+                        };
+                };
+};
+
+sub MD5_digest {
+        my $file=shift;
+        my $sha=Digest::SHA->new('256');
+        $sha->addfile($file);
+        my $digest=$sha->hexdigest;
+        return "$digest";
+}
+
+
+
+sub Send_mail {
+        my($subject,$msg)=@_;
+        my $sender=new Mail::Sender->MailMsg({
+         smtp => 'mail.xtera-ip.com',
+         from => 'neo.niu@xtera-ip.com',
+         to =>'neo.niu55@gmail.com',
+         subject => $subject,
+         msg => $msg,
+         auth => 'LOGIN',
+         authid => 'neo.niu',
+         authpwd => 'neo1234',}
+        ) or die "$Mail::Sender::Error\n";
+        print "Mail sent ok";
+}
